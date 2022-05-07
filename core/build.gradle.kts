@@ -1,11 +1,21 @@
+import org.jetbrains.dokka.gradle.DokkaTaskPartial
+import java.net.URL
+
 plugins {
     kotlin("multiplatform")
+    kotlin("native.cocoapods")
     id("org.jetbrains.kotlinx.kover")
     id("com.ephemeris.library.android")
     id("com.ephemeris.publish.maven")
     id("dev.petuska.npm.publish") version "2.1.2"
     id("io.gitlab.arturbosch.detekt")
+    id("org.jetbrains.dokka")
 }
+
+version = findProperty("version")?.let {
+    if (it == Project.DEFAULT_VERSION) null
+    else it
+} ?: "0.1.0"
 
 kotlin {
     explicitApi()
@@ -49,6 +59,16 @@ kotlin {
             dependencies {
                 implementation(kotlin("test"))
             }
+        }
+    }
+
+    cocoapods {
+        summary = "The flexible, multiplatform calendar library!"
+        homepage = "https://boswelja.github.io/Ephemeris"
+        license = "MIT"
+
+        framework {
+            baseName = "EphemerisCore"
         }
     }
 }
@@ -123,4 +143,20 @@ npmPublishing {
 
     readme = file("README.md")
     organization = "ephemeris"
+}
+
+tasks.withType<DokkaTaskPartial>().configureEach {
+    dokkaSourceSets.configureEach {
+        sourceLink {
+            localDirectory.set(file("src/commonMain/kotlin"))
+
+            remoteUrl.set(
+                URL(
+                    "https://github.com/boswelja/Ephemeris/blob/main/core/src/commonMain/kotlin"
+                )
+            )
+        }
+
+        externalDocumentationLink("https://kotlin.github.io/kotlinx.coroutines/")
+    }
 }
