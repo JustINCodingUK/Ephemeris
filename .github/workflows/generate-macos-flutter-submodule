@@ -1,0 +1,22 @@
+
+name: generate-macos-project
+on: [push]
+jobs: 
+   setup-macos:
+     runs-on: macos-latest
+     steps:
+       - uses: actions/checkout@v3
+       - run: cd ${GITHUB_WORKSPACE}/flutter/ephemeris
+       - run: git clone https://github.com/Flutter/flutter.git
+       - run: ${GITHUB_WORKSPACE}/flutter/ephemeris/flutter/bin/flutter create ephemeris --platforms=macos
+       - run: cp -r ephemeris/macos ${GITHUB_WORKSPACE}/flutter/ephemeris
+       - run: rm -rf ephemeris
+       - run: rm -rf flutter
+       - run: |
+           git config --global user.name "Justin"
+           git config --global user.email "JustINCodingUK@users.noreply.github.com"
+           git add -A
+           git commit -m "Create macos submodule"
+       - uses: ad-m/github-push-action@master
+         with:
+           github_token: ${{ secrets.GITHUB_TOKEN }}
